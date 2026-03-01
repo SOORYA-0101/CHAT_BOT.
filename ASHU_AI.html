@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHUU AI - Professional Study Assistant</title>
+    <!-- Modern, professional typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Premium color palette */
+            --bg-body: #f3f5f9;
+            --bg-card: #ffffff;
+            --primary: #4F46E5;
+            --primary-light: #EEF2FF;
+            --secondary: #10B981;
+            --text-dark: #1E293B;
+            --text-medium: #475569;
+            --text-light: #94A3B8;
+            --border: #E2E8F0;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Mode Theme Variables */
+        body.dark-mode {
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --primary: #6366F1;
+            --primary-light: #312E81;
+            --secondary: #34D399;
+            --text-dark: #F8FAFC;
+            --text-medium: #CBD5E1;
+            --text-light: #64748B;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Aesthetic background pattern */
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.03) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.03) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.03) 0, transparent 50%);
+            position: relative;
+            animation: fadeInPage 0.8s ease-out;
+        }
+
+        @keyframes fadeInPage {
+            0% {
+                opacity: 0;
+                transform: translateY(15px) scale(0.99);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Floating Background Stickers */
+        .bg-sticker {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.15;
+            color: var(--primary);
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .sticker-1 {
+            top: 10%;
+            left: 5%;
+            font-size: 150px;
+            transform: rotate(-15deg);
+            color: #4F46E5;
+        }
+
+        .sticker-2 {
+            bottom: 15%;
+            left: 8%;
+            font-size: 120px;
+            transform: rotate(25deg);
+            color: #10B981;
+            animation-delay: -2s;
+        }
+
+        .sticker-3 {
+            top: 15%;
+            right: 5%;
+            font-size: 140px;
+            transform: rotate(15deg);
+            color: #F59E0B;
+            animation-delay: -4s;
+        }
+
+        .sticker-4 {
+            bottom: 10%;
+            right: 8%;
+            font-size: 160px;
+            transform: rotate(-20deg);
+            color: #EC4899;
+            animation-delay: -1s;
+        }
+
+        .sticker-5 {
+            top: 50%;
+            left: 2%;
+            font-size: 80px;
+            transform: rotate(45deg);
+            color: #8B5CF6;
+            animation-delay: -3s;
+        }
+
+        .sticker-6 {
+            top: 40%;
+            right: 3%;
+            font-size: 100px;
+            transform: rotate(-30deg);
+            color: #06B6D4;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(var(--rot));
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(calc(var(--rot) + 5deg));
+            }
+        }
+
+        /* 
+         * Re-arranging layout away from ChatGPT sidebar to a beautiful
+         * centered Dashboard layout with a built-in assistant module
+         */
+        .dashboard-container {
+            width: 95%;
+            max-width: 1300px;
+            height: 90vh;
+            background: var(--bg-card);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            overflow: hidden;
+            position: relative;
+            transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dashboard-container.sidebar-collapsed {
+            grid-template-columns: 0px 1fr;
+        }
+
+        /* Left Panel - Tools & Context */
+        .workspace-panel {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), #818CF8);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .student-profile {
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .profile-info p {
+            font-size: 12px;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .quick-tools h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .tool-btn {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
+
+        .tool-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .tool-btn i {
+            font-size: 18px;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+
+        /* Right Panel - The AI Interface */
+        .ai-panel {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+
+        .ai-header {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .session-info h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .session-info p {
+            font-size: 13px;
+            color: var(--text-medium);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-medium);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-sm);
+            font-size: 16px;
+        }
+
+        .icon-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .login-btn {
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            background: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+        }
+
+        /* Unique Message Layout */
+        .chat-feed {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            min-height: 0;
+            /* Crucial for preventing flex child from expanding indefinitely */
+        }
+
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+
+        .message-row {
+            display: flex;
+            gap: 20px;
+            max-width: 80%;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-row.bot-row {
+            align-self: flex-start;
+        }
+
+        .message-row.user-row {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bot-row .avatar-img {
+            background: linear-gradient(135deg, #4F46E5, #312E81);
+            padding: 8px;
+        }
+
+        .bot-row .message-avatar-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: var(--secondary);
+            /* Green online dot */
+            border: 3px solid var(--bg-card);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .message-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        /* Distinct styling for Bot vs User cards */
+        .bot-row .message-card {
+            border-top-left-radius: 4px;
+            background: var(--bg-card);
+        }
+
+        .user-row .message-card {
+            border-top-right-radius: 4px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .message-card p {
+            margin-bottom: 12px;
+        }
+
+        .message-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .bot-row .message-card strong {
+            color: var(--primary);
+        }
+
+        .message-timestamp {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .user-row .message-timestamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Typing effect */
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            height: 20px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Shimmer Loading Effect */
+        .shimmer-line {
+            height: 12px;
+            background: linear-gradient(90deg, var(--border) 0%, var(--bg-body) 50%, var(--border) 100%);
+            background-size: 200% 100%;
+            animation: shimmer-anim 1.5s infinite linear;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+
+        .shimmer-line:nth-child(1) {
+            width: 80%;
+        }
+
+        .shimmer-line:nth-child(2) {
+            width: 100%;
+        }
+
+        .shimmer-line:nth-child(3) {
+            width: 60%;
+            margin-bottom: 0;
+        }
+
+        @keyframes shimmer-anim {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Button Ripple */
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple-element {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim-effect 0.6s linear;
+            background-color: rgba(128, 128, 128, 0.3);
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim-effect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Input Deck */
+        .input-deck {
+            padding: 20px 40px 40px;
+            background: linear-gradient(to top, var(--bg-card) 80%, transparent);
+        }
+
+        .input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+            transform: scale(1.01);
+        }
+
+        .attachment-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .attachment-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            color: var(--text-medium);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .attachment-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
+        }
+
+        .main-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: var(--text-dark);
+            padding: 16px 0;
+            resize: none;
+            min-height: 56px;
+            max-height: 160px;
+            outline: none;
+            font-weight: 500;
+        }
+
+        .main-input::placeholder {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .send-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .send-btn:hover {
+            background: var(--primary);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .send-btn:disabled {
+            background: var(--border);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .keyboard-hint {
+            position: absolute;
+            right: 75px;
+            bottom: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-light);
+            background: var(--bg-body);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+
+        /* 📱 Responsive Design / Mobile Tablet etc. */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        @media screen and (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 280px 1fr;
+                width: 98%;
+            }
+
+            .message-row {
+                max-width: 90%;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                background: var(--bg-card);
+                background-image: none;
+            }
+
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+            }
+
+            .bg-sticker {
+                display: none;
+                /* Less clutter on small screens */
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .desktop-menu-btn {
+                display: none;
+            }
+
+            .workspace-panel {
+                position: absolute;
+                left: -100%;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 100;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .workspace-panel.open {
+                left: 0;
+            }
+
+            .ai-header {
+                padding: 16px 20px;
+            }
+
+            .session-info h2 {
+                font-size: 14px;
+            }
+
+            .session-info p {
+                font-size: 11px;
+            }
+
+            .login-btn {
+                font-size: 12px;
+                padding: 6px 14px;
+            }
+
+            .chat-feed {
+                padding: 15px;
+            }
+
+            .message-row {
+                max-width: 100%;
+            }
+
+            .message-card {
+                padding: 16px;
+                font-size: 14px;
+            }
+
+            .input-deck {
+                padding: 10px 15px 50px;
+                /* Moved slightly upwards by increasing bottom padding */
+            }
+
+            .input-wrapper {
+                padding: 8px 16px;
+                animation: popupMessageWindow 2s infinite alternate;
+                transform: translateY(-10px);
+                /* Move slightly upwards so it floats/pops up */
+                background: var(--bg-card);
+                border: 2px solid var(--primary);
+            }
+
+            @keyframes popupMessageWindow {
+                0% {
+                    border-color: rgba(79, 70, 229, 0.3);
+                    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.1);
+                }
+
+                100% {
+                    border-color: rgba(79, 70, 229, 1);
+                    box-shadow: 0 12px 35px rgba(79, 70, 229, 0.35);
+                }
+            }
+
+            .attachment-group {
+                display: none;
+            }
+
+            .main-input {
+                min-height: 48px;
+                padding: 10px 0;
+            }
+
+            .keyboard-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Stickers -->
+    <i class="fa-solid fa-ruler-combined bg-sticker sticker-1" style="--rot: -15deg;"></i>
+    <i class="fa-solid fa-flask bg-sticker sticker-2" style="--rot: 25deg;"></i>
+    <i class="fa-solid fa-pencil bg-sticker sticker-3" style="--rot: 15deg;"></i>
+    <i class="fa-solid fa-calculator bg-sticker sticker-4" style="--rot: -20deg;"></i>
+    <i class="fa-solid fa-book-open bg-sticker sticker-5" style="--rot: 45deg;"></i>
+    <i class="fa-solid fa-atom bg-sticker sticker-6" style="--rot: -30deg;"></i>
+
+    <!-- Mobile overlay -->
+    <div class="overlay" id="mobile-overlay"></div>
+
+    <div class="dashboard-container">
+        <!-- Left Panel: Professional Dashboard Tools -->
+        <aside class="workspace-panel">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>ASHUU AI</h1>
+                    <span>Powered by SOORYA SURESH</span>
+                </div>
+            </div>
+
+            <div class="student-profile">
+                <!-- Using a cute 3D memoji-style placeholder for the student -->
+                <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=e2e8f0" alt="Student"
+                    class="profile-img">
+                <div class="profile-info">
+                    <h3>Degree Student</h3>
+                    <p>Computer Science</p>
+                </div>
+            </div>
+
+            <div class="quick-tools">
+                <h2>Workspace Tools</h2>
+                <button class="tool-btn">
+                    <i class="fa-regular fa-file-pdf"></i>
+                    Upload Syllabus
+                </button>
+                <button class="tool-btn">
+                    <i class="fa-solid fa-layer-group"></i>
+                    Generate Flashcards
+                </button>
+                <button class="tool-btn">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    Review Essay
+                </button>
+                <button class="tool-btn">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    Study Schedule
+                </button>
+            </div>
+
+            <!-- History Section -->
+            <div class="quick-tools" style="margin-top: 10px; flex: 1; overflow-y: auto;">
+                <h2>Recent Chats</h2>
+                <div id="history-container">
+                    <!-- History items will be populated here -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Panel: The Interactive AI -->
+        <main class="ai-panel">
+
+            <header class="ai-header">
+                <div class="session-info">
+                    <h2>No Dumb Questions Here 📚</h2>
+                    <p>A Unique Way To Study</p>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn mobile-menu-btn" title="Menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <button class="icon-btn desktop-menu-btn" id="sidebar-toggle-btn" title="Toggle Sidebar">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <button class="icon-btn" id="theme-toggle" title="Toggle Dark Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                    <button class="icon-btn" title="New Chat" id="new-chat-btn">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button class="login-btn">
+                        <i class="fa-regular fa-user"></i> Log In
+                    </button>
+                </div>
+            </header>
+
+            <div class="chat-feed" id="chat-feed">
+                <!-- Bot Intro Message -->
+                <div class="message-row bot-row" id="intro-msg">
+                    <div class="message-avatar-wrap">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot"
+                            class="avatar-img">
+                    </div>
+                    <div class="message-card">
+                        <p>Welcome to your academic workspace! 👋 I'm <strong>ASHUU AI</strong>, your professional study
+                            companion.</p>
+                        <p>This is your distraction-free zone to ask absolutely anything. Got a tricky concept, need to
+                            brainstorm a thesis, or just want to review some notes? 🧠 Drop your thoughts below and
+                            let's conquer your syllabus!</p>
+                        <span class="message-timestamp">Just now • System</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-deck">
+                <div class="input-wrapper">
+                    <div class="attachment-group">
+                        <button class="attachment-btn" title="Attach Document (PDF, Word)">
+                            <i class="fa-regular fa-file-pdf"></i>
+                        </button>
+                        <button class="attachment-btn" title="Attach Image">
+                            <i class="fa-regular fa-image"></i>
+                        </button>
+                    </div>
+                    <textarea class="main-input" id="user-input" placeholder="chat with ashu.... 🙂"
+                        rows="1"></textarea>
+                    <div class="keyboard-hint">Shift + Enter ↵</div>
+                    <div class="send-container">
+                        <button class="send-btn" id="send-btn" disabled>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const chatFeed = document.getElementById('chat-feed');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const workspacePanel = document.querySelector('.workspace-panel');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        // Sidebar Desktop Toggle
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const dashboardContainer = document.querySelector('.dashboard-container');
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', () => {
+                dashboardContainer.classList.toggle('sidebar-collapsed');
+            });
+        }
+
+        // Ripple Effect initialization
+        document.querySelectorAll('button').forEach(btn => {
+            btn.classList.add('btn-ripple');
+            btn.addEventListener('click', function (e) {
+                let rect = e.target.closest('button').getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+
+                let ripples = document.createElement('span');
+                ripples.style.left = x + 'px';
+                ripples.style.top = y + 'px';
+                ripples.classList.add('ripple-element');
+                this.appendChild(ripples);
+
+                setTimeout(() => {
+                    ripples.remove();
+                }, 600);
+            });
+        });
+
+        function toggleMobileMenu() {
+            workspacePanel.classList.toggle('open');
+            if (workspacePanel.classList.contains('open')) {
+                mobileOverlay.classList.add('show');
+            } else {
+                mobileOverlay.classList.remove('show');
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileOverlay.addEventListener('click', toggleMobileMenu);
+
+        // Elegant Textarea resizing
+        userInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            sendBtn.disabled = this.value.trim() === '';
+
+            // Hide keyboard hint if typing
+            const hint = document.querySelector('.keyboard-hint');
+            if (this.value.trim().length > 0) {
+                hint.style.opacity = '0';
+            } else {
+                hint.style.opacity = '1';
+            }
+        });
+
+        userInput.addEventListener('keydown', function (e) {
+            // Un-conventional: Shift+Enter submits, Enter normal behavior OR just Enter submits, Shift+Enter new line.
+            // Let's stick to standard: Enter submits, Shift+Enter new line.
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmission();
+            }
+        });
+
+        sendBtn.addEventListener('click', handleSubmission);
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const bodyPattern = document.body;
+
+        // Load theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            }
+        });
+
+        // Chat History Logic
+        let currentMessages = [];
+        const historyContainer = document.getElementById('history-container');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        let currentSessionId = Date.now().toString();
+
+        function saveMessageToHistory(text, type, time) {
+            currentMessages.push({ text, type, time });
+
+            let allChats = JSON.parse(localStorage.getItem('ashuuChats') || '{}');
+
+            // Name the chat based on the first user message
+            let chatName = "New Chat";
+            if (currentMessages.length > 0) {
+                const firstUserMessage = currentMessages.find(m => m.type === 'user');
+                if (firstUserMessage) {
+                    chatName = firstUserMessage.text.substring(0, 20) + (firstUserMessage.text.length > 20 ? '...' : '');
+                }
+            }
+
+            allChats[currentSessionId] = {
+                name: chatName,
+                messages: currentMessages,
+                lastUpdated: Date.now()
+            };
+
+            localStorage.setItem('ashuuChats', JSON.stringify(allChats));
+            renderHistorySidebar();
+        }
+
+        function renderHistorySidebar() {
+            historyContainer.innerHTML = '';
+            let allChats = JSON.parse(localStorage.getItem('ashuuChats') || '{}');
+
+            // Sort by most recent
+            const sortedChats = Object.entries(allChats).sort((a, b) => b[1].lastUpdated - a[1].lastUpdated);
+
+            for (const [id, chatData] of sortedChats) {
+                const btn = document.createElement('button');
+                btn.className = 'tool-btn';
+                btn.innerHTML = `
+                    <i class="fa-regular fa-message" style="background: transparent; color: var(--text-medium); font-size: 14px; padding: 0;"></i>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${chatData.name}</span>
+                `;
+
+                btn.onclick = () => loadChatSession(id, chatData);
+                historyContainer.appendChild(btn);
+            }
+        }
+
+        function loadChatSession(id, chatData) {
+            currentSessionId = id;
+            currentMessages = [...chatData.messages];
+
+            // Clear feed except intro
+            chatFeed.innerHTML = '';
+            chatFeed.appendChild(document.getElementById('intro-msg'));
+
+            // Replay messages
+            chatData.messages.forEach(msg => {
+                appendMessage(msg.text, msg.type, msg.time, false); // false = don't save to history again
+            });
+
+            if (window.innerWidth <= 768) {
+                toggleMobileMenu();
+            }
+        }
+
+        newChatBtn.addEventListener('click', () => {
+            currentSessionId = Date.now().toString();
+            currentMessages = [];
+            chatFeed.innerHTML = '';
+            chatFeed.appendChild(document.getElementById('intro-msg'));
+        });
+
+        // Initial render history
+        renderHistorySidebar();
+
+        async function handleSubmission() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Generate timestamp
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // User Message
+            appendMessage(text, 'user', time, true);
+
+            // Reset input
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            document.querySelector('.keyboard-hint').style.opacity = '1';
+
+            // Show Typing Animation
+            const typingId = appendTypingIndicator();
+
+            try {
+                // Connect to our local Python backend
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                removeElement(typingId);
+
+                if (response.ok) {
+                    // Type out the message smoothly
+                    appendAndTypeMessage(data.reply, 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), true);
+                } else {
+                    appendMessage(`⚠️ System Error: ${data.error || 'Unknown error occurred.'}`, 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), true);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                removeElement(typingId);
+                appendMessage("🔌 Connection Error: Could not connect to the backend server. Make sure your Python Flask server is running.", 'bot', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), true);
+            }
+        }
+
+        function appendMessage(text, type, time, shouldSave = false) {
+            const row = document.createElement('div');
+            row.className = `message-row ${type}-row`;
+
+            // Setup avatar
+            let avatarHtml = '';
+            if (type === 'bot') {
+                avatarHtml = `
+                    <div class="message-avatar-wrap">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                    </div>
+                `;
+            } else {
+                avatarHtml = `
+                    <div class="message-avatar-wrap">
+                        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=e2e8f0" alt="User" class="avatar-img">
+                    </div>
+                `;
+            }
+
+            let parsedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            const cardHtml = `
+                <div class="message-card">
+                    <p class="msg-content">${parsedText}</p>
+                    <span class="message-timestamp">${time} • ${type === 'bot' ? 'System' : 'You'}</span>
+                </div>
+            `;
+
+            row.innerHTML = type === 'bot' ? avatarHtml + cardHtml : cardHtml + avatarHtml;
+            chatFeed.appendChild(row);
+
+            if (shouldSave) {
+                saveMessageToHistory(text, type, time);
+            }
+
+            setTimeout(() => {
+                chatFeed.scrollTo({
+                    top: chatFeed.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+        }
+
+        function appendAndTypeMessage(text, type, time, shouldSave = false) {
+            const row = document.createElement('div');
+            row.className = `message-row ${type}-row`;
+
+            let avatarHtml = `
+                <div class="message-avatar-wrap">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                </div>
+            `;
+
+            const cardHtml = `
+                <div class="message-card">
+                    <p class="msg-content"></p>
+                    <span class="message-timestamp">${time} • System</span>
+                </div>
+            `;
+
+            row.innerHTML = avatarHtml + cardHtml;
+            chatFeed.appendChild(row);
+
+            const contentP = row.querySelector('.msg-content');
+
+            // Simple logic for typing effect
+            let i = 0;
+            // Parse strong tags for rendering
+            let parsedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Temporarily use innerHTML to parse it cleanly, then type it out 
+            // Proper typing out of HTML is complex, so we will do an accelerated character dump
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = parsedText;
+
+            chatFeed.scrollTo({
+                top: chatFeed.scrollHeight,
+                behavior: 'smooth'
+            });
+
+            // Fast typing effect
+            let fullHtml = tempDiv.innerHTML;
+            let currentStr = "";
+            let htmlIndex = 0;
+
+            function typeNext() {
+                if (htmlIndex < fullHtml.length) {
+                    currentStr += fullHtml[htmlIndex];
+                    contentP.innerHTML = currentStr;
+                    htmlIndex++;
+
+                    if (htmlIndex % 5 === 0) {
+                        chatFeed.scrollTop = chatFeed.scrollHeight;
+                    }
+                    // Faster typing for bot 
+                    setTimeout(typeNext, 3);
+                } else {
+                    if (shouldSave) {
+                        saveMessageToHistory(text, type, time);
+                    }
+                    chatFeed.scrollTop = chatFeed.scrollHeight;
+                }
+            }
+
+            typeNext();
+        }
+
+        function appendTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const row = document.createElement('div');
+            row.className = `message-row bot-row`;
+            row.id = id;
+
+            row.innerHTML = `
+                <div class="message-avatar-wrap">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                </div>
+                <div class="message-card" style="padding: 16px 24px;">
+                    <div class="typing-dots" style="margin-bottom: 12px;">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div>
+                        <div class="shimmer-line"></div>
+                        <div class="shimmer-line"></div>
+                        <div class="shimmer-line"></div>
+                    </div>
+                </div>
+            `;
+
+            chatFeed.appendChild(row);
+
+            setTimeout(() => {
+                chatFeed.scrollTo({
+                    top: chatFeed.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 50);
+
+            return id;
+        }
+
+        function removeElement(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+    </script>
+</body>
+
+</html>
