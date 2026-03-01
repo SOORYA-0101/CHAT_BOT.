@@ -42,7 +42,7 @@ def chat():
         
         # We use the gemini-flash-latest model as it has better free tier limits and stability
         model = genai.GenerativeModel('gemini-flash-latest', 
-            system_instruction="You are ASHUU AI, a professional and helpful study companion. You help students with their academic queries in a concise, structured, and pedagogical manner. Format your responses using markdown when appropriate."
+            system_instruction="You are ZOE, a professional and helpful study companion. You help students with their academic queries in a concise, structured, and pedagogical manner. Format your responses using markdown when appropriate."
         )
         
         response = model.generate_content(user_message)
@@ -54,6 +54,6 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    print("Starting ASHUU AI Backend on http://0.0.0.0:5000")
+    print("Starting ZOE Backend on http://0.0.0.0:5000")
     # Bind to 0.0.0.0 to allow network access
     app.run(host='0.0.0.0', debug=True, port=5000)
