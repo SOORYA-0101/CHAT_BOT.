@@ -8,6 +8,7 @@
     <!-- Modern, professional typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
@@ -31,7 +32,7 @@
             --bg-body: #0F172A;
             --bg-card: #1E293B;
             --primary: #6366F1;
-            --primary-light: #312E81;
+            --primary-light: #3d3a8b;
             --secondary: #34D399;
             --text-dark: #F8FAFC;
             --text-medium: #CBD5E1;
@@ -487,12 +488,49 @@
             box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
         }
 
-        .message-card p {
-            margin-bottom: 12px;
+        .msg-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .message-card p:last-child {
+        .msg-content p {
             margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        .msg-content ul,
+        .msg-content ol {
+            padding-left: 20px;
+        }
+
+        .msg-content li {
+            margin-bottom: 6px;
+        }
+
+        .msg-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        .user-row .msg-content pre {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .msg-content code {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.06);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .user-row .msg-content code {
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .bot-row .message-card strong {
@@ -975,11 +1013,15 @@
                             class="avatar-img">
                     </div>
                     <div class="message-card">
-                        <p>Welcome to your academic workspace! 👋 I'm <strong>ASHUU AI</strong>, your professional study
-                            companion.</p>
-                        <p>This is your distraction-free zone to ask absolutely anything. Got a tricky concept, need to
-                            brainstorm a thesis, or just want to review some notes? 🧠 Drop your thoughts below and
-                            let's conquer your syllabus!</p>
+                        <div class="msg-content">
+                            <p>Welcome to your academic workspace! 👋 I'm <strong>ASHUU AI</strong>, your professional
+                                study
+                                companion.</p>
+                            <p>This is your distraction-free zone to ask absolutely anything. Got a tricky concept, need
+                                to
+                                brainstorm a thesis, or just want to review some notes? 🧠 Drop your thoughts below and
+                                let's conquer your syllabus!</p>
+                        </div>
                         <span class="message-timestamp">Just now • System</span>
                     </div>
                 </div>
@@ -1009,6 +1051,9 @@
     </div>
 
     <script>
+        if (window.marked) {
+            marked.setOptions({ breaks: true, gfm: true });
+        }
         const chatFeed = document.getElementById('chat-feed');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
@@ -1247,16 +1292,16 @@
                 `;
             }
 
-            let parsedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            let parsedText = window.marked ? marked.parse(text) : text;
 
             const cardHtml = `
                 <div class="message-card">
-                    <p class="msg-content">${parsedText}</p>
+                    <div class="msg-content">${parsedText}</div>
                     <span class="message-timestamp">${time} • ${type === 'bot' ? 'System' : 'You'}</span>
                 </div>
             `;
 
-            row.innerHTML = type === 'bot' ? avatarHtml + cardHtml : cardHtml + avatarHtml;
+            row.innerHTML = avatarHtml + cardHtml;
             chatFeed.appendChild(row);
 
             if (shouldSave) {
@@ -1283,7 +1328,7 @@
 
             const cardHtml = `
                 <div class="message-card">
-                    <p class="msg-content"></p>
+                    <div class="msg-content"></div>
                     <span class="message-timestamp">${time} • System</span>
                 </div>
             `;
@@ -1293,38 +1338,30 @@
 
             const contentP = row.querySelector('.msg-content');
 
-            // Simple logic for typing effect
-            let i = 0;
-            // Parse strong tags for rendering
-            let parsedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-            // Temporarily use innerHTML to parse it cleanly, then type it out 
-            // Proper typing out of HTML is complex, so we will do an accelerated character dump
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = parsedText;
-
             chatFeed.scrollTo({
                 top: chatFeed.scrollHeight,
                 behavior: 'smooth'
             });
 
-            // Fast typing effect
-            let fullHtml = tempDiv.innerHTML;
+            // Fast typing effect parsing markdown dynamically
             let currentStr = "";
-            let htmlIndex = 0;
+            let charIndex = 0;
+            const chunkSize = 3;
 
             function typeNext() {
-                if (htmlIndex < fullHtml.length) {
-                    currentStr += fullHtml[htmlIndex];
-                    contentP.innerHTML = currentStr;
-                    htmlIndex++;
+                if (charIndex < text.length) {
+                    currentStr += text.substring(charIndex, charIndex + chunkSize);
+                    charIndex += chunkSize;
 
-                    if (htmlIndex % 5 === 0) {
+                    contentP.innerHTML = window.marked ? marked.parse(currentStr) : currentStr;
+
+                    if (charIndex % 15 === 0) {
                         chatFeed.scrollTop = chatFeed.scrollHeight;
                     }
                     // Faster typing for bot 
-                    setTimeout(typeNext, 3);
+                    setTimeout(typeNext, 10);
                 } else {
+                    contentP.innerHTML = window.marked ? marked.parse(text) : text;
                     if (shouldSave) {
                         saveMessageToHistory(text, type, time);
                     }
@@ -1345,16 +1382,11 @@
                 <div class="message-avatar-wrap">
                     <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
                 </div>
-                <div class="message-card" style="padding: 16px 24px;">
-                    <div class="typing-dots" style="margin-bottom: 12px;">
+                <div class="message-card" style="padding: 16px 20px; width: fit-content; min-width: 60px;">
+                    <div class="typing-dots" style="justify-content: center;">
                         <div class="dot"></div>
                         <div class="dot"></div>
                         <div class="dot"></div>
-                    </div>
-                    <div>
-                        <div class="shimmer-line"></div>
-                        <div class="shimmer-line"></div>
-                        <div class="shimmer-line"></div>
                     </div>
                 </div>
             `;
