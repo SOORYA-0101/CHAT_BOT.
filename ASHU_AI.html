@@ -4,7 +4,7 @@
 <head meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASHUU AI - Professional Study Assistant</title>
+    <title>ZOE - Professional Study Assistant</title>
     <!-- Modern, professional typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -934,7 +934,7 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div class="brand-text">
-                    <h1>ASHUU AI</h1>
+                    <h1>ZOE</h1>
                     <span>Powered by SOORYA SURESH</span>
                 </div>
             </div>
@@ -1009,12 +1009,12 @@
                 <!-- Bot Intro Message -->
                 <div class="message-row bot-row" id="intro-msg">
                     <div class="message-avatar-wrap">
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot"
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ZoeAI&backgroundColor=4F46E5" alt="Bot"
                             class="avatar-img">
                     </div>
                     <div class="message-card">
                         <div class="msg-content">
-                            <p>Welcome to your academic workspace! 👋 I'm <strong>ASHUU AI</strong>, your professional
+                            <p>Welcome to your academic workspace! 👋 I'm <strong>ZOE</strong>, your professional
                                 study
                                 companion.</p>
                             <p>This is your distraction-free zone to ask absolutely anything. Got a tricky concept, need
@@ -1037,8 +1037,7 @@
                             <i class="fa-regular fa-image"></i>
                         </button>
                     </div>
-                    <textarea class="main-input" id="user-input" placeholder="chat with ashu.... 🙂"
-                        rows="1"></textarea>
+                    <textarea class="main-input" id="user-input" placeholder="chat with ZOE.... 🙂" rows="1"></textarea>
                     <div class="keyboard-hint">Shift + Enter ↵</div>
                     <div class="send-container">
                         <button class="send-btn" id="send-btn" disabled>
@@ -1158,7 +1157,7 @@
         function saveMessageToHistory(text, type, time) {
             currentMessages.push({ text, type, time });
 
-            let allChats = JSON.parse(localStorage.getItem('ashuuChats') || '{}');
+            let allChats = JSON.parse(localStorage.getItem('zoeChats') || '{}');
 
             // Name the chat based on the first user message
             let chatName = "New Chat";
@@ -1175,13 +1174,13 @@
                 lastUpdated: Date.now()
             };
 
-            localStorage.setItem('ashuuChats', JSON.stringify(allChats));
+            localStorage.setItem('zoeChats', JSON.stringify(allChats));
             renderHistorySidebar();
         }
 
         function renderHistorySidebar() {
             historyContainer.innerHTML = '';
-            let allChats = JSON.parse(localStorage.getItem('ashuuChats') || '{}');
+            let allChats = JSON.parse(localStorage.getItem('zoeChats') || '{}');
 
             // Sort by most recent
             const sortedChats = Object.entries(allChats).sort((a, b) => b[1].lastUpdated - a[1].lastUpdated);
@@ -1281,7 +1280,7 @@
             if (type === 'bot') {
                 avatarHtml = `
                     <div class="message-avatar-wrap">
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ZoeAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
                     </div>
                 `;
             } else {
@@ -1322,7 +1321,7 @@
 
             let avatarHtml = `
                 <div class="message-avatar-wrap">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ZoeAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
                 </div>
             `;
 
@@ -1380,7 +1379,7 @@
 
             row.innerHTML = `
                 <div class="message-avatar-wrap">
-                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AshuuAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ZoeAI&backgroundColor=4F46E5" alt="Bot" class="avatar-img">
                 </div>
                 <div class="message-card" style="padding: 16px 20px; width: fit-content; min-width: 60px;">
                     <div class="typing-dots" style="justify-content: center;">
